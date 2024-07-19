@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: "rush"
+      RABBITMQ_DEFAULT_PASS: "setup123"
+      RABBITMQ_USERNAME: "rush"
+      RABBITMQ_PASSWORD: "setup123"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  consumer:
+    build: .
+    container_name: consumer
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_USER=rush
+      - RABBITMQ_PASSWORD=setup123
+      - RABBITMQ_VIRTUAL_HOST=/
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_HOST=rabbitmq
+    command: sh -c "./wait-for-it.sh rabbitmq:5672 && python start_rabbitmq_consumer.py"
+    volumes:
+      - .:/app
+
